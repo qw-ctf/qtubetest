@@ -6,11 +6,24 @@
 	<meta name=viewport content="width=device-width, initial-scale=1">
 	<title>FTE QuakeWorld</title>
 	<style>
-	html,body { background-color:#000000; color:#808080; height:100%;width:100%;margin:0;padding:0;}
+	@font-face {
+            font-family: 'ComicShannsNerdFont-Regular';
+            src: url('ComicShannsNerdFont-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+	html,body { 
+		background-color:#000000;
+		color:#808080;
+		margin:0;
+		padding:0;
+		font-family: "ComicShannsNerdFont-Regular";
+		text-align: right;
+	}
 	.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
 	div.emscripten { text-align: center; padding:0; margin: 0;}
 	/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-	canvas.emscripten { border: 0px none; width:100%; height:100%; padding:0; margin: 0;}
+	canvas.emscripten { border: 0px none; width:100%; height:90%; padding:0; margin: 0;}
 	</style>
   </head>
   <body ondrop="gotdrop(event);" ondragover="event.preventDefault()">
@@ -21,6 +34,12 @@
 		<progress value="0" max="100" id="progress" hidden=1></progress>  
 	</div>
 	<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" hidden=1></canvas>
+	<table style="width: 100%; border-collapse: collapse">
+		<tr>
+			<td id="info" style="width: 50%; vertical-align: top;"></td>
+			<td id="timers" style="width: 50%; vertical-align: top;"></td>
+		</tr>
+	</table>
 	<script type='text/javascript'>
 // connect to canvas
 var Module = {
@@ -91,9 +110,89 @@ var Module = {
 				alert("Unable to initialise. You may need to restart your browser. If you get this often and inconsistently, consider using a 64bit browser instead.");
 				Module.setStatus("Initialisation Failure");
 			}
+			else
+			{
+				setTimeout(update_info, 1000);
+			}
 		}
 	],
 };
+function update_info()
+{
+	console.log("update_info");
+	var text = new TextDecoder();
+
+	var client = Module.getClientState();
+	var fragstats = Module.getFragStats();
+
+	console.log(client.allocated_client_slots);
+
+	var table = document.createElement("table");
+	table.style.width = "100%";
+	var row = table.insertRow()
+	row.insertCell().textContent = "Team";
+	row.insertCell().textContent = "Name";
+	row.insertCell().textContent = "Frags";
+	row.insertCell().textContent = "Suicides";
+	row.insertCell().textContent = "Kills";
+	row.insertCell().textContent = "Teamkills";
+
+	for (var i = 0; i < client.allocated_client_slots; i++) {
+		var player = client.getPlayer(i);
+		var name = player.getName();
+		if (name.length == 0 || player.spectator) {
+			continue;
+		}
+
+		var totals = fragstats.getClientTotals(i);
+
+		var row = table.insertRow();
+
+		row.insertCell().textContent = text.decode(player.getTeam()).trim();
+		row.insertCell().textContent = player.getNamePlain().trim();
+		row.insertCell().textContent = player.frags;
+		row.insertCell().textContent = totals.suicides;
+		row.insertCell().textContent = totals.kills;
+		row.insertCell().textContent = totals.teamkills;
+	}
+
+	var timers = document.createElement("table");
+	timers.style.width = "100%";
+	var row = timers.insertRow();
+	row.insertCell().textContent = "ETA";
+	row.insertCell().textContent = "Item";
+	row.insertCell().textContent = "Location";
+	try {
+		var itemtimers = client.getItemTimers2();
+		var items = []
+		for (var it = client.getItemTimers2(); it != null; it = it.getNext()) {
+			console.log(client.time, it.entnum, it.start, it.end, it.duration, it.getType(), it.getTypeName(), it.getLocation());
+			items.push([it.end, (it.end - client.time).toFixed(1) + "s", it.getTypeName(), it.getLocation()]);
+		} 
+		items.sort((a, b) => {
+			return a[0] - b[0];
+		});
+		for (var i = 0; i < items.length; i++) {
+			var row = timers.insertRow();
+			row.insertCell().textContent = items[i][1];
+			row.insertCell().textContent = items[i][2];
+			row.insertCell().textContent = items[i][3];
+		}
+	} catch (e) {
+	}
+
+
+	var info_cell = document.getElementById("info");
+	info_cell.innerHTML = "";
+	info_cell.appendChild(table);
+
+	var timers_cell = document.getElementById("timers");
+	timers_cell.innerHTML = "";
+	timers_cell.appendChild(timers);
+
+
+	setTimeout(update_info, 1000);
+}
 function begin()
 {
 	if (Module.began)
