@@ -36,6 +36,10 @@
 	<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" hidden=1></canvas>
 	<table style="width: 100%; border-collapse: collapse">
 		<tr>
+			<td colspan="2" id="levelname" style="text-align: left">
+			</td>
+		</tr>
+		<tr>
 			<td id="info" style="width: 50%; vertical-align: top;"></td>
 			<td id="timers" style="width: 50%; vertical-align: top;"></td>
 		</tr>
@@ -125,13 +129,15 @@ function update_info()
 	var client = Module.getClientState();
 	var fragstats = Module.getFragStats();
 
-	console.log(client.allocated_client_slots);
+        var level = document.getElementById("levelname");
+        levelname.innerHTML = client.getLevelNamePlain();
 
 	var table = document.createElement("table");
 	table.style.width = "100%";
 	var row = table.insertRow()
 	row.insertCell().textContent = "Team";
 	row.insertCell().textContent = "Name";
+	row.insertCell().textContent = "Location";
 	row.insertCell().textContent = "Frags";
 	row.insertCell().textContent = "Suicides";
 	row.insertCell().textContent = "Kills";
@@ -148,8 +154,11 @@ function update_info()
 
 		var row = table.insertRow();
 
-		row.insertCell().textContent = text.decode(player.getTeam()).trim();
-		row.insertCell().textContent = player.getNamePlain().trim();
+		row.insertCell().textContent = player.getTeamPlain();
+		row.insertCell().textContent = player.getNamePlain();
+		var cell = row.insertCell()
+		cell.style.width = "10em";
+		cell.textContent = client.getPlayerLocation(i);
 		row.insertCell().textContent = player.frags;
 		row.insertCell().textContent = totals.suicides;
 		row.insertCell().textContent = totals.kills;
@@ -163,10 +172,9 @@ function update_info()
 	row.insertCell().textContent = "Item";
 	row.insertCell().textContent = "Location";
 	try {
-		var itemtimers = client.getItemTimers2();
 		var items = []
-		for (var it = client.getItemTimers2(); it != null; it = it.getNext()) {
-			console.log(client.time, it.entnum, it.start, it.end, it.duration, it.getType(), it.getTypeName(), it.getLocation());
+		for (var it = client.getItemTimers(); it != null; it = it.getNext()) {
+			console.log(client.time, it.entnum, it.start, it.end, it.duration, "t:", it.getType(), it.getTypeName(), it.getLocation());
 			items.push([it.end, (it.end - client.time).toFixed(1) + "s", it.getTypeName(), it.getLocation()]);
 		} 
 		items.sort((a, b) => {
