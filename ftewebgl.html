@@ -46,6 +46,7 @@
 	</table>
 	<script type='text/javascript'>
 // connect to canvas
+var cfg = "qw/fte.cfg?" + Math.floor(Date.now())
 var Module = {
 	files:
 	{	//these can be arraybuffers(you'll need a helper to define those) or promises(fte will block till they complete), or strings (which will be interpretted as urls and downloaded before any C code is run)
@@ -66,8 +67,8 @@ var Module = {
 		"id1/skins/2baseboth.pcx": "qw/skins/2baseboth.pcx",
 		"id1/skins/2basepent.pcx": "qw/skins/2basepent.pcx",
 		"id1/skins/2basequad.pcx": "qw/skins/2basequad.pcx",
-		"ctf/fte.cfg": "qw/fte.cfg",
-		"qw/fte.cfg": "qw/fte.cfg",
+		"ctf/fte.cfg": cfg,
+		"qw/fte.cfg": cfg,
 		//"qw/particles/balltexture.png": "qw/ball.png", 
 	},
 	print: function(msg)
