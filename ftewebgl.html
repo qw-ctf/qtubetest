@@ -61,6 +61,8 @@ var Module = {
 		"id1/nqr_050322_dqm_vs_la_round3_e2m2.mvd.gz": "qw/nqr_050322_dqm_vs_la_round3_e2m2.mvd.gz",
 		"id1/qhlan_final_lw_v_bl_4of5_ctf_blue_vs_red[e2m2]20221118-2221.mvd.gz": "qw/qhlan_final_lw_v_bl_4of5_ctf_blue_vs_red[e2m2]20221118-2221.mvd.gz",
 		"id1/skins/2base.pcx": "qw/skins/2base.pcx",
+		"id1/skins/red.png": "qw/skins/red.png",
+		"id1/skins/blue.png": "qw/skins/blue.png",
 		"id1/skins/2baseboth.pcx": "qw/skins/2baseboth.pcx",
 		"id1/skins/2basepent.pcx": "qw/skins/2basepent.pcx",
 		"id1/skins/2basequad.pcx": "qw/skins/2basequad.pcx",
@@ -123,14 +125,17 @@ var Module = {
 };
 function update_info()
 {
-	console.log("update_info");
+	//console.log("update_info");
 	var text = new TextDecoder();
 
 	var client = Module.getClientState();
 	var fragstats = Module.getFragStats();
 
+	var players = client.getPlayers();
+
         var level = document.getElementById("levelname");
-        levelname.innerHTML = client.getLevelNamePlain();
+	var demotime = players[0].getStatsFloat()[Module.STAT_MATCHSTARTTIME];
+        levelname.innerHTML = client.getLevelNamePlain() + " " + (client.time - demotime / 1000.0) + " " + Module.getDemoTime();
 
 	var table = document.createElement("table");
 	table.style.width = "100%";
@@ -143,8 +148,11 @@ function update_info()
 	row.insertCell().textContent = "Kills";
 	row.insertCell().textContent = "Teamkills";
 
-	for (var i = 0; i < client.allocated_client_slots; i++) {
-		var player = client.getPlayer(i);
+	//for (var i = 0; i < client.allocated_client_slots; i++) {
+	//	var player = client.getPlayer(i);
+	//console.log(players);
+	for (var i = 0; i < players.length; i++) {
+		var player = players[i];
 		var name = player.getName();
 		if (name.length == 0 || player.spectator) {
 			continue;
@@ -158,7 +166,7 @@ function update_info()
 		row.insertCell().textContent = player.getNamePlain();
 		var cell = row.insertCell()
 		cell.style.width = "10em";
-		cell.textContent = client.getPlayerLocation(i);
+		cell.textContent = player.getLocation();
 		row.insertCell().textContent = player.frags;
 		row.insertCell().textContent = totals.suicides;
 		row.insertCell().textContent = totals.kills;
@@ -173,8 +181,10 @@ function update_info()
 	row.insertCell().textContent = "Location";
 	try {
 		var items = []
-		for (var it = client.getItemTimers(); it != null; it = it.getNext()) {
-			console.log(client.time, it.entnum, it.start, it.end, it.duration, "t:", it.getType(), it.getTypeName(), it.getLocation());
+		var its = client.getItemTimers();
+		for (var i = 0; i < its.length; i++) {
+			var it = its[i];
+			//console.log(client.time, it.entnum, it.start, it.end, it.duration, "t:", it.getType(), it.getTypeName(), it.getLocation());
 			items.push([it.end, (it.end - client.time).toFixed(1) + "s", it.getTypeName(), it.getLocation()]);
 		} 
 		items.sort((a, b) => {
