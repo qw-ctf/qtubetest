@@ -135,7 +135,8 @@ function update_info()
 
         var level = document.getElementById("levelname");
 	var demotime = players[0].getStatsFloat()[Module.STAT_MATCHSTARTTIME];
-        levelname.innerHTML = client.getLevelNamePlain() + " " + (client.time - demotime / 1000.0) + " " + Module.getDemoTime();
+	var pv = client.getPlayerView(0);
+        levelname.innerHTML = client.getLevelNamePlain() + " " + (client.time - demotime / 1000.0) + " " + Module.getDemoTime() + " " + pv.getTrackedPlayer().getNamePlain();
 
 	var table = document.createElement("table");
 	table.style.width = "100%";
