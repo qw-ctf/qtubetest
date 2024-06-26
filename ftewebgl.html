@@ -23,7 +23,7 @@
 	.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
 	div.emscripten { text-align: center; padding:0; margin: 0;}
 	/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-	canvas.emscripten { border: 0px none; width:100%; height:90%; padding:0; margin: 0;}
+	canvas.emscripten { border: 0px none; width:100%; height:100%; padding:0; margin: 0;}
 	</style>
   </head>
   <body ondrop="gotdrop(event);" ondragover="event.preventDefault()">
@@ -33,7 +33,9 @@
 	<div class="emscripten">
 		<progress value="0" max="100" id="progress" hidden=1></progress>  
 	</div>
-	<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" hidden=1></canvas>
+	<div style="width: 1280px">
+		<canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" hidden=1></canvas>
+	</div>
 	<table style="width: 100%; border-collapse: collapse">
 		<tr>
 			<td colspan="2" id="levelname" style="text-align: left">
@@ -56,11 +58,18 @@ var Module = {
 		"id1/config.cfg": "id1/config.cfg",
 		"id1/fragfile.dat": "id1/fragfile.dat",
 		"id1/locs/dm2.loc": "id1/locs/dm2.loc",
+/*
 		"id1/maps/dm2.bsp": "id1/maps/dm2.bsp",
+		"id1/maps/e1m2.bsp": "id1/maps/e1m2.bsp",
 		"id1/maps/e2m2.bsp": "id1/maps/e2m2.bsp",
-		"id1/4on4_polz_vs_]sr[[dm2]20240402-2152.mvd": "qw/4on4_polz_vs_]sr[[dm2]20240402-2152.mvd",
-		"id1/nqr_050322_dqm_vs_la_round3_e2m2.mvd.gz": "qw/nqr_050322_dqm_vs_la_round3_e2m2.mvd.gz",
-		"id1/qhlan_final_lw_v_bl_4of5_ctf_blue_vs_red[e2m2]20221118-2221.mvd.gz": "qw/qhlan_final_lw_v_bl_4of5_ctf_blue_vs_red[e2m2]20221118-2221.mvd.gz",
+		"id1/maps/e2m5.bsp": "id1/maps/e2m5.bsp",
+		"id1/maps/e3m6.bsp": "id1/maps/e3m6.bsp",
+		"id1/maps/ctf5.bsp": "id1/maps/ctf5.bsp",
+		"id1/maps/ctf8.bsp": "id1/maps/ctf8.bsp",
+		"id1/maps/ctf2m1.bsp": "id1/maps/ctf2m1.bsp",
+		"id1/maps/ctf2m3.bsp": "id1/maps/ctf2m3.bsp",
+		"id1/maps/ctf2m8.bsp": "id1/maps/ctf2m8.bsp",
+*/
 		"id1/skins/2base.pcx": "qw/skins/2base.pcx",
 		"id1/skins/red.png": "qw/skins/red.png",
 		"id1/skins/blue.png": "qw/skins/blue.png",
@@ -69,6 +78,7 @@ var Module = {
 		"id1/skins/2basequad.pcx": "qw/skins/2basequad.pcx",
 		"ctf/fte.cfg": cfg,
 		"qw/fte.cfg": cfg,
+		"qw/csaddon.dat": "qw/csaddon.dat",
 		//"qw/particles/balltexture.png": "qw/ball.png", 
 	},
 	print: function(msg)
@@ -119,11 +129,30 @@ var Module = {
 			}
 			else
 			{
+				var c = document.getElementById("canvas");
+				//window.addEventListener('resize', win_resize, true);
+				//win_resize();
 				setTimeout(update_info, 1000);
 			}
 		}
 	],
 };
+function win_resize() {
+	var canvas = document.getElementById("canvas");
+	var ratio = 9 / 16;
+	var width = window.innerWidth;
+	var height = width * ratio;
+	var devicePixelRatio = window.devicePixelRatio || 1;
+	console.log("dpratio", devicePixelRatio);
+	canvas.width = width * devicePixelRatio;
+	canvas.height = height * devicePixelRatio;
+	console.log("canvas width:", canvas.width, width);
+	console.log("style:", canvas.style.width);
+	canvas.style.width = width + "px";
+	canvas.style.height = height + "px";
+	console.log("style:", canvas.style.width);
+};
+
 function update_info()
 {
 	//console.log("update_info");
