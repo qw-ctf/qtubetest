@@ -162,6 +162,9 @@ function update_info()
 	var fragstats = Module.getFragStats();
 
 	var players = client.getPlayers();
+	if (players == undefined || players[0] == undefined) {
+		setTimeout(update_info, 1000);
+	}
 
         var level = document.getElementById("levelname");
 	var demotime = players[0].getStatsFloat()[Module.STAT_MATCHSTARTTIME];
